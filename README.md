@@ -51,7 +51,7 @@ The API will now accept POST requests at `http://127.0.0.1:5000/predict`.
 
 Due to size constraints, model files are not included in this repository. Download the model from the link below and place it under `model/saved_model/`:
 
-> [🔗 Google Drive: SavedModel](https://drive.google.com/uc?id=YOUR_FILE_ID)
+> [🔗 Google Drive: SavedModel](https://drive.google.com/drive/folders/1Qu_jDYV0iW4pQ1B9ndoug1N9WawwP6Wk?usp=sharing)
 
 ---
 
