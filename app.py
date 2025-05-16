@@ -48,27 +48,28 @@ def predict():
     try:
         image_bytes = image_file.read()
 
-        # Görseli diske kaydet
+        # Geçici dosyaya yaz
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp:
             temp.write(image_bytes)
             temp.flush()
             image_path = temp.name
 
-        # GPS ve adres bilgisi
+        # GPS & adres bilgisi
         gps = get_gps_info(image_path)
         address = reverse_geocode(gps["latitude"], gps["longitude"]) if gps else None
 
-        # Görseli OpenCV formatına çevir
+        # OpenCV formatına çevir
         np_arr = np.frombuffer(image_bytes, np.uint8)
         original_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
         if original_image is None:
             raise Exception("Invalid image content.")
 
-        # Preprocessing
+        # ✅ Preprocess (parlaklaştırma)
         preprocessed_image = preprocess_image(image_bytes)
-        cv2.imwrite(f"debug_bbox_.jpg", preprocessed_image)
+        pre_path = image_path.replace(".jpg", "_preprocessed.jpg")
+        cv2.imwrite(pre_path, preprocessed_image)
 
-        # Nesne tespiti
+        # ✅ Detection preprocess edilmiş resim üzerinden
         detections = detect_objects(preprocessed_image)
         filtered = [d for d in detections if d.get('score', 0) >= 0.5]
 
@@ -79,15 +80,17 @@ def predict():
             class_name = det['class']
             score = det['score']
 
-            # Bounding box alanını kırp
-            crop = crop_by_bbox(original_image, bbox, original_image.shape[:2])
+            # ✅ Preprocess edilmiş görselden crop al
+            crop = crop_by_bbox(preprocessed_image, bbox, preprocessed_image.shape[:2])
+
+            # ✅ crop'ı kaydet
             with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as crop_temp:
                 cv2.imwrite(crop_temp.name, crop)
                 crop_path = crop_temp.name
 
-            # Arka planı kaldır
+            # ✅ remove.bg → preprocess edilmiş crop ile
             try:
-                output_path = crop_path.replace(".jpg", "_nobg.png")
+                output_path = crop_path.replace(".jpg", "_masked.png")
                 remove_background(crop_path, output_path)
                 masked_image = cv2.imread(output_path)
                 if masked_image is None:
@@ -95,12 +98,14 @@ def predict():
             except Exception as e:
                 app.logger.warning(f"Remove.bg failed for object {i}: {e}")
                 masked_image = crop  # fallback
-            cv2.imwrite(f"debug_bbox_{i}.jpg", crop)
-            cv2.imwrite(f"debug_masked_{i}.png", masked_image)
 
-            # Renk analizi
+            # ✅ renk analizi → masked (parlak) resim üzerinden
             dominant_rgb, _ = kmeans_color_analysis(masked_image)
             color_name = rgb_to_color_name(dominant_rgb) if dominant_rgb else "undefined"
+
+            # ✅ debug kayıtları
+            cv2.imwrite(f"debug_bbox_{i}.jpg", crop)
+            cv2.imwrite(f"debug_masked_{i}.png", masked_image)
 
             results.append({
                 "class": class_name,

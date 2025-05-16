@@ -1,0 +1,16 @@
+flask==3.0.3
+opencv-python==4.11.0.86
+numpy==1.23.5
+pillow==10.4.0
+requests==2.32.3
+tensorflow==2.10.1
+tensorflow-hub==0.16.1
+tensorflow-text==2.10.0
+tf-slim==1.1.0
+matplotlib==3.6.2
+scikit-learn==1.3.2
+pandas==1.5.2
+protobuf==3.20.3
+pycocotools==2.0.7
+object_detection @ git+https://github.com/tensorflow/models.git@1775a8a3253d63b7cd446a5077fb20479f3b3f38#egg=object_detection&subdirectory=research/object_detection/packages/tf2
+geopy==2.4.1

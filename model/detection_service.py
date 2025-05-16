@@ -1,13 +1,6 @@
 import numpy as np
-import cv2
 import tensorflow as tf
 from object_detection.utils import label_map_util
-from utils.color_utils import (
-    crop_center_of_bbox,
-    detect_dominant_color_hsv,
-    kmeans_color_analysis,
-    rgb_to_color_name
-)
 import logging
 
 # ==========================
@@ -43,8 +36,8 @@ def detect_objects(image_np):
         detections['num_detections'] = num_detections
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-        results = []
         h, w, _ = image_np.shape
+        results = []
 
         for i in range(num_detections):
             score = detections['detection_scores'][i]
@@ -55,25 +48,9 @@ def detect_objects(image_np):
             box = detections['detection_boxes'][i]  # [ymin, xmin, ymax, xmax]
             class_name = category_index.get(cls_id, {'name': 'unknown'})['name']
 
-            cropped = crop_center_of_bbox(image_np, box)
-            if cropped.size == 0:
-                continue
-
-            # HSV ile renk analizi (fonksiyon çoklu değer döndürüyorsa, final rengi en sonuncudur)
-            try:
-                _, _, _, _, final_color = detect_dominant_color_hsv(cropped)
-            except ValueError:
-                final_color = "undefined"
-
-            # KMeans analizi
-            kmeans_rgb, _ = kmeans_color_analysis(cropped)
-            kmeans_color = rgb_to_color_name(kmeans_rgb) if kmeans_rgb else "undefined"
-
             results.append({
                 "class": class_name,
                 "score": float(score),
-                "dominant_color": final_color,
-                "kmeans_color": kmeans_color,
                 "bounding_box": {
                     "ymin": float(box[0]),
                     "xmin": float(box[1]),
