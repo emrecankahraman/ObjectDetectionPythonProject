@@ -3,10 +3,10 @@
 This project provides a Flask-based REST API that performs the following operations on images:
 
 1. 📸 Image upload
-2. 🤖 Object detection (TensorFlow, Faster R-CNN)
-3. 🧼 Background removal of detected objects (via remove.bg API)
-4. 🎨 Dominant color detection in cropped objects (using KMeans)
-5. 📍 Location and address extraction from GPS metadata (reverse geocoding)
+2. 📍 Location and address extraction from GPS metadata (reverse geocoding)
+3. 🤖 Object detection (TensorFlow, Faster R-CNN)
+4. 🧼 Background removal of detected objects (via remove.bg API)
+5. 🎨 Dominant color detection in cropped objects (using KMeans)
 
 ## 🔧 Setup
 
@@ -58,13 +58,13 @@ Due to size constraints, model files are not included in this repository. Downlo
 ## 🔁 Workflow
 
 1. User uploads an image to the API.
-2. The image is converted to OpenCV format.
-3. `preprocess_image()` enhances color saturation.
-4. Object detection is performed using TensorFlow (Faster R-CNN).
-5. Detected objects are cropped from the original image.
-6. Each cropped object is sent to remove.bg for background removal.
-7. Dominant color analysis is applied on the masked (background-removed) and preprocessed image.
-8. If available, location and address information are extracted from EXIF GPS data.
+2. If available, location and address information are extracted from EXIF GPS data.
+3. The image is converted to OpenCV format.
+4. `preprocess_image()` enhances color saturation.
+5. Object detection is performed using TensorFlow (Faster R-CNN).
+6. Detected objects are cropped from the original image.
+7. Each cropped object is sent to remove.bg for background removal.
+8. Dominant color analysis is applied on the masked (background-removed) and preprocessed image.
 9. Results are returned in JSON format.
 
 ---
